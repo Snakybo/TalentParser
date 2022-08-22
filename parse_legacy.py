@@ -102,7 +102,7 @@ def generate_lua_table(build: str, classes: list[ClassData]):
 	result += "--- @type LibTalentInfoClassic\n"
 	result += "local LibTalentInfoClassic = LibStub and LibStub(\"LibTalentInfoClassic-1.0\", true)\n"
 	result += "local version = " + build + "\n\n"
-	result += "if WOW_PROJECT_ID ~= WOW_PROJECT_BURNING_CRUSADE_CLASSIC or LE_EXPANSION_LEVEL_CURRENT ~= LE_EXPANSION_NORTHREND or LibTalentInfoClassic == nil or version <= LibTalentInfoClassic:GetTalentProviderVersion() then\n"
+	result += "if WOW_PROJECT_ID ~= WOW_PROJECT_BURNING_CRUSADE_CLASSIC or LE_EXPANSION_LEVEL_CURRENT ~= LE_EXPANSION_WRATH_OF_THE_LICH_KING or LibTalentInfoClassic == nil or version <= LibTalentInfoClassic:GetTalentProviderVersion() then\n"
 	result += "\treturn\n"
 	result += "end\n\n"
 
