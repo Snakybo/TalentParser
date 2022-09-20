@@ -21,29 +21,20 @@ class SpecData:
 		result += "\t-- " + self.specName + " " + self.className + "\n"
 		result += "\t[" + str(self.specId) + "] = {\n"
 
-		for i in range(int(len(self.talents) / 3)):
+		for i in range(len(self.talents)):
 			result += "\t\t" + self.talent_row_to_string(i) + "\n"
 
 		result += "\t},\n"
 
 		return result
 
-	def talent_row_to_string(self, row):
+	def talent_row_to_string(self, index):
 		result: str = ""
-
-		startIndex: int = (row * 3)
-		endIndex: int = startIndex + 3
-
-		for i in range(startIndex, endIndex):
-			result += str(self.talents[i].talentId) + ", "
-
+		result += str(self.talents[index].talentId) + ", "
 		result += "-- "
-
-		for i in range(startIndex, endIndex):
-			result += str(self.talents[i].name)
-
-			if i < endIndex - 1:
-				result += ", "
+		result += "[" + str(index) + "] "
+		result += str(self.talents[index].name)
+		result += ", "
 
 		return result
 
@@ -111,21 +102,51 @@ def parse_pvp_talent_table(fields: list[astnodes.Field]):
 		index = field.key.n - 1
 
 		try:
-			result[index] = parse_talent_table(field.value.fields)
+			result[index] = parse_pvp_talents(field.value.fields)
 		except IndexError:
 			for _ in range(index - len(result) + 1):
 				result.append(None)
-			result[index] = parse_talent_table(field.value.fields)
+			result[index] = parse_pvp_talents(field.value.fields)
 
 	return result
 
-def parse_talent_table(fields: list[astnodes.Field]):
+def parse_talent_table(trees: list[astnodes.Field]):
+	result: list[TalentData] = []
+
+	for tree in trees:
+		parse_talent_node(tree.value.fields, result)
+
+	return result
+
+def parse_talent_node(fields: list[astnodes.Field], result: list[TalentData]):
+	for field in fields:
+		key = field.key.s
+
+		if key == "entryIDs":
+			parse_talent_node_entries(field.value.fields, result)
+
+def parse_talent_node_entries(entries: list[astnodes.Field], result: list[TalentData]):
+	for entry in entries:
+		data = TalentData()
+		parse_talent_node_entry(entry.value.fields, data)
+		result.append(data)
+
+def parse_talent_node_entry(fields: list[astnodes.Field], data: TalentData):
+	for field in fields:
+		key = field.key.s
+
+		if key == "spellID":
+			data.talentId = field.value.n
+		elif key == "name":
+			data.name = field.value.s
+
+def parse_pvp_talents(fields: list[astnodes.Field]):
 	result: list[TalentData] = []
 
 	for field in fields:
 		data = TalentData()
 		data.index = field.key.n - 1
-		parse_talent(field.value.fields, data)
+		parse_pvp_talent(field.value.fields, data)
 
 		try:
 			result[data.index] = data
@@ -136,7 +157,7 @@ def parse_talent_table(fields: list[astnodes.Field]):
 
 	return result
 
-def parse_talent(fields: list[astnodes.Field], data: TalentData):
+def parse_pvp_talent(fields: list[astnodes.Field], data: TalentData):
 	for field in fields:
 		key = field.key.s
 
@@ -168,7 +189,6 @@ def generate_spec_list(specs: list[SpecData]):
 
 def generate_lua_table(build: str, specs: list[SpecData]):
 	result: str = ""
-	result += "--- @type LibTalentInfo\n"
 	result += "local LibTalentInfo = LibStub and LibStub(\"LibTalentInfo-1.0\", true)\n"
 	result += "local version = " + build + "\n\n"
 	result += "if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE or LibTalentInfo == nil or version <= LibTalentInfo:GetTalentProviderVersion() then\n"
@@ -197,7 +217,6 @@ def generate_lua_table(build: str, specs: list[SpecData]):
 
 	for spec in specs:
 		result += spec.talents_to_string()
-		pass
 
 	result += "}\n\n"
 	result += "--- @type table<integer,table<integer,integer[]>>\n"
