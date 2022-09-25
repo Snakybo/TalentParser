@@ -34,7 +34,6 @@ class SpecData:
 		result += "-- "
 		result += "[" + str(index) + "] "
 		result += str(self.talents[index].name)
-		result += ", "
 
 		return result
 
