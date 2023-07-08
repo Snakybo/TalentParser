@@ -1,12 +1,5 @@
 import luadata
 
-class TalentData:
-	index: int
-	entryID: int
-	spellID: int
-	name: str
-	icon: int
-
 class PvPTalentData:
 	index: int
 	talentID: int
@@ -19,29 +12,7 @@ class SpecData:
 	className: str
 	classFileName: str
 	lastUpdateBuild: str
-	talents: list[TalentData]
 	pvpTalents: list[PvPTalentData]
-
-	def talents_to_string(self):
-		result: str = ""
-		result += "\t-- " + self.specName + " " + self.className + "\n"
-		result += "\t[" + str(self.specID) + "] = {\n"
-
-		for i in range(len(self.talents)):
-			result += "\t\t" + self.talent_row_to_string(i) + "\n"
-
-		result += "\t},\n"
-
-		return result
-
-	def talent_row_to_string(self, index):
-		result: str = "{ "
-		result += "entryID = " + str(self.talents[index].entryID) + ", "
-		result += "spellID = " + str(self.talents[index].spellID) + ", "
-		result += "name = \"" + str(self.talents[index].name) + "\", "
-		result += "icon = " + str(self.talents[index].icon) + " },"
-
-		return result
 
 	def pvp_talents_to_string(self):
 		result: str = ""
@@ -80,7 +51,6 @@ def parse_spec_data(lua):
 	data.specName = lua["specName"]
 	data.className = lua["className"]
 	data.classFileName = lua["classFileName"]
-	data.talents = parse_talents(lua["talents"])
 	data.pvpTalents = parse_pvp_talents(lua["pvpTalents"])
 
 	return data
@@ -95,22 +65,6 @@ def parse_pvp_talents(lua):
 		data.name = talent["name"]
 
 		result.append(data)
-
-	return result
-
-def parse_talents(lua):
-	result: list[TalentData] = []
-
-	for talent in lua:
-		for entryID in talent["entryIDs"]:
-			data = TalentData()
-			data.index = len(result)
-			data.entryID = entryID
-			data.spellID = talent["entries"][entryID]["definition"]["spellID"]
-			data.name = talent["entries"][entryID]["definition"]["name"]
-			data.icon = talent["entries"][entryID]["definition"]["icon"]
-
-			result.append(data)
 
 	return result
 
@@ -160,13 +114,6 @@ def generate_lua_table(build: str, specs: list[SpecData]):
 		result += "\t},\n"
 
 	result += "}\n\n"
-	result += "--- @type table<integer,TalentEntry[]>\n"
-	result += "local talents = {\n"
-
-	for spec in specs:
-		result += spec.talents_to_string()
-
-	result += "}\n\n"
 	result += "--- @type table<integer,integer[]>\n"
 	result += "local pvpTalents = {\n"
 
@@ -178,7 +125,6 @@ def generate_lua_table(build: str, specs: list[SpecData]):
 	result += "LibTalentInfo:RegisterTalentProvider({\n"
 	result += "\tversion = version,\n"
 	result += "\tspecializations = specializations,\n"
-	result += "\ttalents = talents,\n"
 	result += "\tpvpTalents = pvpTalents\n"
 	result += "})\n"
 
