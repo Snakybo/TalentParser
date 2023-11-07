@@ -1,9 +1,8 @@
-from luaparser import ast
-from luaparser import astnodes
+import luadata
 
 class TalentData:
 	index: int
-	talentId: int
+	talentID: int
 	name: str
 
 class ClassData:
@@ -34,57 +33,36 @@ class ClassData:
 
 		for i in range(startIndex, endIndex):
 			for j in self.talents:
-				if j.talentId == i:
+				if j.talentID == i:
 					if result:
 						result += ", "
 
-					result += str(j.talentId)
+					result += str(j.talentID)
 
 
 		return result
 
-def parse_class_data(fields: list[ast.Field]):
+def parse_class_data(lua):
 	data = ClassData()
-
-	for field in fields:
-		key = field.key.s
-
-		if key == "lastUpdateBuild":
-			data.build = field.value.s
-		elif key == "className":
-			data.className = field.value.s
-		elif key == "classFileName":
-			data.classFileName = field.value.s
-		elif key == "talents":
-			data.talents = parse_talent_table(field.value.fields)
+	data.lastUpdateBuild = lua["lastUpdateBuild"]
+	data.className = lua["className"]
+	data.classFileName = lua["classFileName"]
+	data.talents = parse_talent_table(lua["talents"])
 
 	return data
 
-def parse_talent_table(fields: list[astnodes.Field]):
+def parse_talent_table(lua):
 	result: list[TalentData] = []
 
-	for field in fields:
+	for talent in lua:
 		data = TalentData()
-		data.index = field.key.n - 1
-		parse_talent(field.value.fields, data)
+		data.index = len(result)
+		data.talentID = talent["talentID"]
+		data.name = talent["name"]
 
-		try:
-			result[data.index] = data
-		except IndexError:
-			for _ in range(data.index - len(result) + 1):
-				result.append(None)
-			result[data.index] = data
+		result.append(data)
 
 	return result
-
-def parse_talent(fields: list[astnodes.Field], data: TalentData):
-	for field in fields:
-		key = field.key.s
-
-		if key == "talentID":
-			data.talentId = field.value.n
-		elif key == "name":
-			data.name = field.value.s
 
 def generate_class_list(classes: list[ClassData]):
 	result: list[str] = []
@@ -134,24 +112,16 @@ def generate_lua_table(build: str, classes: list[ClassData]):
 	return result
 
 def get_build(data: ClassData):
-	return data.build
+	return data.lastUpdateBuild
 
-try:
-	fs = open("TalentExtractor.lua", "r", encoding="utf8")
-	src = fs.read()
-	fs.close
-except Exception as fserr:
-	print("failed to read file \"TalentExtractor.lua\": " + str(fserr))
-	exit(1)
-
-tree = ast.parse(src)
+lua = luadata.read("TalentExtractor.lua", encoding="utf-8")
 classes: list[ClassData] = []
 
-for field in tree.body.body[0].values[0].fields:
-	classes.append(parse_class_data(field.value.fields))
+for clazz in lua:
+	classes.append(parse_class_data(lua[clazz]))
 
 classes.sort(key=get_build, reverse=True)
-build = classes[0].build
+build = classes[0].lastUpdateBuild
 
 output = generate_lua_table(build, classes)
 
