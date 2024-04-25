@@ -1,4 +1,8 @@
 import luadata
+import sys
+
+output_file = "TalentData.lua"
+project_id = ""
 
 class TalentData:
 	index: int
@@ -42,6 +46,21 @@ class ClassData:
 
 		return result
 
+def parse_args():
+	global output_file
+	global project_id
+
+	for i in range(1, len(sys.argv)):
+		current = sys.argv[i]
+
+		if i + 1 < len(sys.argv) and not sys.argv[i + 1].startswith("--"):
+			next = sys.argv[i + 1]
+
+		if current == "--output":
+			output_file = next
+		elif current == "--project-id":
+			project_id = next
+
 def parse_class_data(lua):
 	data = ClassData()
 	data.lastUpdateBuild = lua["lastUpdateBuild"]
@@ -80,7 +99,7 @@ def generate_lua_table(build: str, classes: list[ClassData]):
 	result += "--- @type LibTalentInfoClassic\n"
 	result += "local LibTalentInfoClassic = LibStub and LibStub(\"LibTalentInfoClassic-1.0\", true)\n"
 	result += "local version = " + build + "\n\n"
-	result += "if WOW_PROJECT_ID ~= WOW_PROJECT_BURNING_CRUSADE_CLASSIC or LE_EXPANSION_LEVEL_CURRENT ~= LE_EXPANSION_WRATH_OF_THE_LICH_KING or LibTalentInfoClassic == nil or version <= LibTalentInfoClassic:GetTalentProviderVersion() then\n"
+	result += "if WOW_PROJECT_ID ~= " + project_id + " or LibTalentInfoClassic == nil or version <= LibTalentInfoClassic:GetTalentProviderVersion() then\n"
 	result += "\treturn\n"
 	result += "end\n\n"
 
@@ -114,6 +133,8 @@ def generate_lua_table(build: str, classes: list[ClassData]):
 def get_build(data: ClassData):
 	return data.lastUpdateBuild
 
+parse_args()
+
 lua = luadata.read("TalentExtractor.lua", encoding="utf-8")
 classes: list[ClassData] = []
 
@@ -126,9 +147,9 @@ build = classes[0].lastUpdateBuild
 output = generate_lua_table(build, classes)
 
 try:
-	fs = open("TalentDataWOTLK.lua", "w", encoding="utf8")
+	fs = open(output_file, "w", encoding="utf8")
 	fs.write(output)
 	fs.close
 except Exception as fserr:
-	print("failed to write file \"TalentDataWOTLK.lua\": " + str(fserr))
+	print("failed to write file \"" + output_file + "\": " + str(fserr))
 	exit(1)
