@@ -22,6 +22,7 @@ class Talent:
 class Cache:
 	min_interface_version: int
 	max_interface_version: int
+	build_id: int
 	keys: list[object]
 	classes: list[Class]
 	specializations: dict[str, list[Specialization]]
@@ -84,21 +85,27 @@ def talents_to_string(indent_level: int, keys: list[object], talents: dict[objec
 	return result
 
 def cache_to_string(cache: Cache):
-	return f"""-- LibTalentInfo, a World of Warcraft library to provide class, specialization, and talent information.
--- Copyright (C) 2024  Kevin Krol
+	return f"""-- MIT License
 --
--- This program is free software: you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation, either version 3 of the License, or
--- (at your option) any later version.
+-- Copyright (c) 2026 Kevin Krol
 --
--- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
 --
--- You should have received a copy of the GNU General Public License
--- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
 
 local LibTalentInfo = LibStub and LibStub(\"LibTalentInfo-1.0\", true)
 
@@ -110,18 +117,13 @@ end
 
 --- @type LibTalentInfo-1.0.Provider
 LibTalentInfo:SetProvider({{
-	--- @type string[]
+	build = {cache.build_id},
 	classes = {classes_to_string(1, cache.classes)},
-
-	--- @type {{ [string]: {{ [integer]: TalentData.Specialization }} }}
 	specializations = {specializations_to_string(1, cache.classes, cache.specializations)},
-
-	--- @type {{ [unknown]: TalentData.Talent[] }}
 	talents = {talents_to_string(1, cache.keys, cache.talents)},
-
-	--- @type {{ [unknown]: TalentData.Talent[] }}
 	pvpTalents = {talents_to_string(1, cache.keys, cache.pvp_talents)}
-}})"""
+}})
+"""
 
 def parse_lua_class(target: list[Class], lua):
 	result = Class()
@@ -167,6 +169,7 @@ def parse_lua(args):
 	cache.pvp_talents = {}
 	cache.min_interface_version = lua["minInterfaceVersion"]
 	cache.max_interface_version = lua["maxInterfaceVersion"]
+	cache.build_id = lua["lastUpdateBuild"]
 
 	for key in lua["data"]:
 		data = lua["data"][key]
