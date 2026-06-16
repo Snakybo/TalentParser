@@ -1,0 +1,85 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Parse Classic talents",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/parse-talents.py",
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"args": [
+				"--output", "out/TalentDataClassic.lua",
+				"${input:rawTalentFile}",
+			]
+		},
+		{
+			"name": "Parse TBC talents",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/parse-talents.py",
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"args": [
+				"--output", "out/TalentDataTBC.lua",
+				"${input:rawTalentFile}",
+			]
+		},
+		{
+			"name": "Parse Wrath talents",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/parse-talents.py",
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"args": [
+				"--output", "out/TalentDataWrath.lua",
+				"${input:rawTalentFile}",
+			]
+		},
+		{
+			"name": "Parse Cata talents",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/parse-talents.py",
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"args": [
+				"--output", "out/TalentDataCata.lua",
+				"${input:rawTalentFile}",
+			]
+		},
+		{
+			"name": "Parse Mists talents",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/parse-talents.py",
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"args": [
+				"--output", "out/TalentDataMists.lua",
+				"${input:rawTalentFile}",
+			]
+		},
+		{
+			"name": "Parse Retail talents",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/parse-talents.py",
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"args": [
+				"--output", "out/TalentDataRetail.lua",
+				"${input:rawTalentFile}",
+			]
+		}
+	],
+	"inputs": [
+		{
+			"id": "rawTalentFile",
+			"type": "promptString",
+			"description": "Path to your TalentExtractor.lua file",
+			"default": "TalentExtractor.lua"
+		}
+	]
+}

@@ -1,6 +1,6 @@
-import luadata
-import sys
+import luadata # type: ignore[import-untyped]
 import argparse
+from typing import Any, cast
 
 class Class:
 	id: str
@@ -10,7 +10,7 @@ class Specialization:
 	index: int
 	id: int
 	name: str
-	icon: int
+	icon: int | str
 	clazz: str
 
 class Talent:
@@ -23,11 +23,11 @@ class Cache:
 	min_interface_version: int
 	max_interface_version: int
 	build_id: int
-	keys: list[object]
+	keys: list[Any]
 	classes: list[Class]
 	specializations: dict[str, list[Specialization]]
-	talents: dict[object, list[Talent]]
-	pvp_talents: dict[object, list[Talent]]
+	talents: dict[Any, list[Talent]]
+	pvp_talents: dict[Any, list[Talent]]
 
 def get_class_id(data: Class):
 	return data.id
@@ -125,7 +125,7 @@ LibTalentInfo:SetProvider({{
 }})
 """
 
-def parse_lua_class(target: list[Class], lua):
+def parse_lua_class(target: list[Class], lua: dict[str, Any]):
 	result = Class()
 	result.id = lua["classFileName"]
 	result.name = lua["className"]
@@ -135,7 +135,7 @@ def parse_lua_class(target: list[Class], lua):
 
 	return result
 
-def parse_lua_specialization(target: list[Specialization], lua):
+def parse_lua_specialization(target: list[Specialization], lua: dict[str, Any]):
 	if "specIndex" in lua:
 		result = Specialization()
 		result.index = lua["specIndex"]
@@ -150,7 +150,7 @@ def parse_lua_specialization(target: list[Specialization], lua):
 
 		target.append(result)
 
-def parse_lua_talents(target: list[Talent], lua, key: str):
+def parse_lua_talents(target: list[Talent], lua: dict[str, Any], key: str):
 	if key in lua:
 		for data in lua[key]:
 			talent = Talent()
@@ -159,8 +159,8 @@ def parse_lua_talents(target: list[Talent], lua, key: str):
 			talent.icon = data["icon"]
 			target.append(talent)
 
-def parse_lua(args):
-	lua = luadata.read(args.input, encoding="utf-8")
+def parse_lua(args: argparse.Namespace):
+	lua: dict[str, Any] = cast(dict[str, Any], luadata.read(args.input, encoding="utf-8")) # type: ignore[reportUnknownMemberType]
 	cache = Cache()
 	cache.keys = []
 	cache.classes = []
@@ -182,7 +182,7 @@ def parse_lua(args):
 		parse_lua_talents(cache.talents.setdefault(key, []), data, "talents")
 		parse_lua_talents(cache.pvp_talents.setdefault(key, []), data, "pvpTalents")
 
-	cache.keys.sort()
+	cache.keys.sort(key=str)
 	cache.classes.sort(key=get_class_id)
 
 	for clazz in cache.classes:
@@ -194,7 +194,7 @@ def parse_lua(args):
 
 	return cache_to_string(cache)
 
-def write_output(args, result):
+def write_output(args: argparse.Namespace, result: str):
 	try:
 		fs = open(args.output, "w", encoding="utf8")
 		fs.write(result)
