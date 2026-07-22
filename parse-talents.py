@@ -167,12 +167,12 @@ def parse_lua(args: argparse.Namespace):
 	cache.specializations = {}
 	cache.talents = {}
 	cache.pvp_talents = {}
-	cache.min_interface_version = lua["minInterfaceVersion"]
-	cache.max_interface_version = lua["maxInterfaceVersion"]
-	cache.build_id = lua["lastUpdateBuild"]
+	cache.min_interface_version = args.min_version
+	cache.max_interface_version = args.max_version
 
 	for key in lua["data"]:
 		data = lua["data"][key]
+		cache.build_id = data["lastUpdateBuild"]
 
 		cache.keys.append(key)
 
@@ -198,7 +198,7 @@ def write_output(args: argparse.Namespace, result: str):
 	try:
 		fs = open(args.output, "w", encoding="utf8")
 		fs.write(result)
-		fs.close
+		fs.close()
 	except Exception as fserr:
 		print("failed to write file \"" + args.output + "\": " + str(fserr))
 		exit(1)
@@ -207,6 +207,8 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("input", type=str, help="the input Lua file")
 	parser.add_argument("-o", "--output", type=str, help="the output Lua file", default="TalentData.lua")
+	parser.add_argument("-m", "--min-version", type=int, help="the minimum interface version to support", default=0)
+	parser.add_argument("-M", "--max-version", type=int, help="the maximum interface version to support", default=999999)
 
 	args = parser.parse_args()
 	result = parse_lua(args)

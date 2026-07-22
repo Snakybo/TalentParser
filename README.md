@@ -18,10 +18,12 @@ This repo ships with VS Code launch configurations for every WoW expansion, so y
 
 The available command-line arguments are:
 
-Argument         | Required | Description
---------         | -------- | -----------
-`--output`       | Yes      | The output .lua file
-(positional)     | Yes      | The input TalentExtractor.lua file
+Argument | Required | Description
+-------- | -------- | -----------
+`-o`, `--output` | Yes | The output .lua file
+`-m`, `--min-version` | Yes | The minimum WoW interface version that can load the talent data
+`-M`, `--max-version` | Yes | The maximum WoW interface version that can load the talent data
+(positional) | Yes | The input TalentExtractor.lua file
 
 ### Example
 
