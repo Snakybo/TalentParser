@@ -182,7 +182,7 @@ def parse_lua(args: argparse.Namespace):
 		parse_lua_talents(cache.talents.setdefault(key, []), data, "talents")
 		parse_lua_talents(cache.pvp_talents.setdefault(key, []), data, "pvpTalents")
 
-	cache.keys.sort(key=str)
+	cache.keys.sort()
 	cache.classes.sort(key=get_class_id)
 
 	for clazz in cache.classes:
