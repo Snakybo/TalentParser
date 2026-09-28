@@ -11,6 +11,20 @@
 			"args": [
 				"--output", "TalentDataClassic.lua",
 				"--min-version", "11300",
+				"--max-version", "16000",
+				"${input:rawTalentFile}",
+			]
+		},
+		{
+			"name": "Parse Forever talents",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/parse-talents.py",
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"args": [
+				"--output", "TalentDataForever.lua",
+				"--min-version", "16000",
 				"--max-version", "20000",
 				"${input:rawTalentFile}",
 			]
