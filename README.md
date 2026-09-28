@@ -4,7 +4,7 @@ A parsing utility to be used alongside [Talent Extractor](https://github.com/sna
 
 ## Installation
 
-This tool requires [Python 3](https://www.python.org/).
+You can either directly install [Python 3](https://www.python.org/), or run this repository within a [container](https://containers.dev/), when using VS Code simply install the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension and it will automatically prompt you to re-open it in a container (Docker or Podman required).
 
 ## Usage
 
